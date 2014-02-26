@@ -20,6 +20,11 @@ class Segment():
         self.segnum = segnum
 
 
+def dump_list(f, lst):
+    f.write("%s\n" % str(len(lst)))
+    for w in lst:
+        f.write("%s\n" % w)
+
 class Words():
     def __init__(self):
         self.words = []
@@ -33,6 +38,9 @@ class Words():
             self.words.append(word)
             self.rev_index.append([docnum])
             return len(self.words) - 1
+    def dump(self, f):
+        dump_list(f, self.words)
+        dump_list(f, self.rev_index)
 
 # spherical k-means
 
@@ -55,10 +63,9 @@ class SKMeans():
                 if word == last_word:
                     vec[last_j] += 1
                 else:
-                    j = self.words.add(word, i)
+                    last_j = j = self.words.add(word, i)
                     vec[j] = vec.get(j,0) + 1
                     last_word = word
-                    last_j = j
             dvec.append(vec)
         # compute inverse frequencies and normalize
         # there are two vector spaces here. The first is
@@ -72,6 +79,7 @@ class SKMeans():
             for k in vec.iterkeys():
                 vec[k] *= weights[k]
             fvec.append(normalize(vec))
+        print fvec
         self.fvec = fvec
 
     def means(self, num_clusters):
@@ -83,7 +91,7 @@ class SKMeans():
         t = 0
         old_q_score = -1
         new_q_score = 0
-        while t < 10 and new_q_score > old_q_score:
+        while t < 100 and new_q_score > old_q_score:
             old_q_score = new_q_score
             t += 1
             cluster_vecs = [vec_mean(c,self.fvec) for c in clusters]
@@ -96,6 +104,9 @@ class SKMeans():
                 clusters[m].append(j)
                 new_q_score += d
         return clusters, new_q_score
+
+    def dump(self, f):
+        dump_list(f, self.fvec)
 
 def closest_mean(vec, centroid_list):
     # since the dist is the cosine, larger values are better
@@ -162,9 +173,9 @@ def readfile(fname):
 #])
 #print skm.means(3)
 
-if len(sys.argv) == 1:
+if len(sys.argv) <= 2:
     print "Usage:"
-    print "    ./seg-cluster.py [input file] [input file] ..."
+    print "    ./seg-cluster.py [dump file] [input file] [input file] ..."
 #    print "    ./seg-cluster.py [directory name] ..."
     sys.exit(1)
 
@@ -172,14 +183,14 @@ print "loading documents"
 documents = [readfile(name) for name in sys.argv[1:]]
 print "indexing documents"
 skm = SKMeans(documents)
-for i in range(2, 1 + int(math.sqrt(len(documents)/2.0))):
+skm.words.dump(sys.stderr)
+skm.dump(sys.stderr)
+for i in range(2, 2 + int(len(documents) / 2.0)):
     print
     print "==== %d clusters ====" % i
     clusters,score = skm.means(i)
     print "score = ", score
     print "clusters = "
     for c in clusters:
-        print "\t",map(sys.argv[1:].__getitem__, c)
-
-
+        print "\t",map(sys.argv[2:].__getitem__, c)
 
