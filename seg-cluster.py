@@ -72,7 +72,8 @@ class SKMeans():
         # the count giving the number of times each word appears in a document
         # the second is the space giving the normalized inverse frequency of the document's words
         N = float(len(docs))
-        weights = [math.log(N / len(self.words.rev_index[k])) for k in range(len(self.words.words))]
+        lnn = math.log(N)
+        weights = [N - math.log(len(self.words.rev_index[k])) for k in range(len(self.words.words))]
         fvec = []
         for vec in dvec:
             #print "vec",vec
