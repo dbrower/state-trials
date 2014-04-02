@@ -1,0 +1,15 @@
+trade|protestant
+state|church
+arbitrary power|common law
+popery|protestant
+coke|trade|common law
+church|trade
+protestant|state
+rebellion|parliament
+parliament|state
+common law|protestant
+subject|arbitrary power
+concept-trade|concept-toleration
+concept-trade|concept-intolerance
+concept-toleration|concept-intolerance
+superstition|fanaticism
