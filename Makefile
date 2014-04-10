@@ -83,14 +83,36 @@ goal_files:= \
 	$(target_words:%=$(TARGET_DIR)/%.pdf) \
 	$(target_word_pairs:%=$(TARGET_DIR)/pair-%.pdf) \
 	$(target_word_triples:%=$(TARGET_DIR)/triple-%.pdf) \
-	$(target_concept_pairs:%=$(TARGET_DIR)/pair-concept-%.pdf)
+	$(target_concept_pairs:%=$(TARGET_DIR)/pair-concept-%.pdf) \
+	$(TARGET_DIR)/concepts-all-by-year.pdf \
+	$(TARGET_DIR)/concepts-stacked-percentages.pdf \
+	$(TARGET_DIR)/option-1.pdf \
+	$(TARGET_DIR)/option-2.pdf
 
 unescape=$(subst _, ,$(1))
 fword=$(firstword $(subst -, ,$(1)))
 sword=$(word 2,$(subst -, ,$(1)))
 tword=$(word 3,$(subst -, ,$(1)))
 
-.SECONDARY: $(goal_files:.pdf=.csv)
+.SECONDARY: $(goal_files:.pdf=.csv) $(TARGET_DIR)/concept-all.csv
+
+all: $(goal_files)
+
+
+$(TARGET_DIR)/concept-all.csv: $(concept_files) phrase-usage-by-case.py $(stopped_files)
+	./phrase-usage-by-case.py $(concept_files) -- $(stopped_files) > $@
+
+$(TARGET_DIR)/concepts-all-by-year.pdf: $(concepts:%=$(TARGET_DIR)/concept-%.csv) chart-all-concepts.gnuplot
+	cd $(TARGET_DIR) && gnuplot ../chart-all-concepts.gnuplot
+
+$(TARGET_DIR)/concepts-stacked-percentages.pdf: $(TARGET_DIR)/concept-all.csv concepts-stacked.gnuplot
+	cd $(TARGET_DIR) && gnuplot ../concepts-stacked.gnuplot
+
+$(TARGET_DIR)/option-1.pdf: $(addprefix $(TARGET_DIR)/,concept-trade.csv concept-toleration.csv year-case-count.csv) toleration-with-hist-chart.gnuplot
+	cd $(TARGET_DIR) && gnuplot ../toleration-with-hist-chart.gnuplot
+
+$(TARGET_DIR)/option-2.pdf: $(addprefix $(TARGET_DIR)/,concept-trade.csv concept-toleration.csv year-case-count.csv) toleration-with-hist-chart-2.gnuplot
+	cd $(TARGET_DIR) && gnuplot ../toleration-with-hist-chart-2.gnuplot
 
 $(TARGET_DIR)/concept-%.csv: concept-%.txt phrase-usage.py case-year.csv $(stopped_files)
 	./phrase-usage.py @$< case-year.csv $(stopped_files) > $@
@@ -113,7 +135,6 @@ $(TARGET_DIR)/%.csv: phrase-usage.py case-year.csv $(stopped_files)
 $(TARGET_DIR)/%.pdf: $(TARGET_DIR)/%.csv usage-chart.gnuplot
 	cd $(TARGET_DIR) && gnuplot -e "word=\"$*\"" ../usage-chart.gnuplot
 
-all: $(goal_files)
 
 
 $(TARGET_DIR)/pair-church-state.pdf: $(TARGET_DIR)/church.csv $(TARGET_DIR)/state.csv
