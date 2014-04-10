@@ -57,6 +57,6 @@ set yrange [0<*:1<*]
 set xlabel "Year"
 set ylabel "Count per 10,000 words"
 stats sprintf("concept-%s.csv", concept) prefix "A" nooutput
-set label 1 at A_pos_max_y, A_max_y case_years(A_pos_max_y) textcolor rgb "red" left point pt 7 offset 1,-0.5
-set label 2 at A_pos_min_y, A_min_y case_years(A_pos_min_y) textcolor rgb "red" right point pt 7 offset -1,1
+#set label 1 at A_pos_max_y, A_max_y case_years(A_pos_max_y) textcolor rgb "red" left point pt 7 offset 1,-0.5
+#set label 2 at A_pos_min_y, A_min_y case_years(A_pos_min_y) textcolor rgb "red" right point pt 7 offset -1,1
 plot sprintf("concept-%s.csv", concept) linecolor rgb "blue" with lines

@@ -14,7 +14,7 @@ set rmargin 2
 #unset xtics
 
 set terminal pdf
-set output ",,zzz.pdf"
+set output "option-1.pdf"
 set terminal pdf linewidth 1
 
 set multiplot layout 2,1 title "Comparison of Toleration and Trade by Year"
